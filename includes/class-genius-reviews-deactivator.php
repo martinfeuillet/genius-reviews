@@ -20,8 +20,8 @@
  * @subpackage Genius_Reviews/includes
  * @author     Your Name <email@example.com>
  */
-class Genius_Reviews_Deactivator
-{
+class Genius_Reviews_Deactivator {
+
 
 	/**
 	 * Short Description. (use period)
@@ -30,10 +30,9 @@ class Genius_Reviews_Deactivator
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate()
-	{
-		if (!class_exists('Genius_Reviews_Term_Schema_Cache')) {
-			require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-genius-reviews-term-schema-cache.php';
+	public static function deactivate() {
+		if ( ! class_exists( 'Genius_Reviews_Term_Schema_Cache' ) ) {
+			require_once plugin_dir_path( __DIR__ ) . 'classes/class-genius-reviews-term-schema-cache.php';
 		}
 
 		Genius_Reviews_Term_Schema_Cache::clear_schedule();

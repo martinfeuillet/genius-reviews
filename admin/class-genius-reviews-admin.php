@@ -20,8 +20,8 @@
  * @subpackage Genius_Reviews/admin
  * @author     Your Name <email@example.com>
  */
-class Genius_Reviews_Admin
-{
+class Genius_Reviews_Admin {
+
 
 	/**
 	 * The ID of this plugin.
@@ -45,14 +45,13 @@ class Genius_Reviews_Admin
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
+	 * @param      string $plugin_name       The name of this plugin.
+	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct($plugin_name, $version)
-	{
+	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 	}
 
 	/**
@@ -60,8 +59,7 @@ class Genius_Reviews_Admin
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles($hook_suffix)
-	{
+	public function enqueue_styles( $hook_suffix ) {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -75,20 +73,20 @@ class Genius_Reviews_Admin
 		 * class.
 		 */
 
-		if ($hook_suffix !== 'genius_review_page_gr-options')
+		if ( $hook_suffix !== 'genius_review_page_gr-options' ) {
 			return;
+		}
 
 		// Coloris CSS
 		wp_enqueue_style(
 			'coloris',
 			'https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css',
-			[],
+			array(),
 			null,
 			'all'
 		);
 
-
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'build/style-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'build/style-admin.css', array(), $this->version, 'all' );
 	}
 
 	/**
@@ -96,8 +94,7 @@ class Genius_Reviews_Admin
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts($hook_suffix)
-	{
+	public function enqueue_scripts( $hook_suffix ) {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -111,31 +108,32 @@ class Genius_Reviews_Admin
 		 * class.
 		 */
 
-
-
-		if ($hook_suffix !== 'genius_review_page_gr-options')
+		if ( $hook_suffix !== 'genius_review_page_gr-options' ) {
 			return;
+		}
 
 		wp_enqueue_script(
 			'coloris',
 			'https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js',
-			[],
+			array(),
 			null,
 			true
 		);
-		
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'build/genius-reviews-admin.bundle.js', array('jquery'), $this->version, false);
 
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'build/genius-reviews-admin.bundle.js', array( 'jquery' ), $this->version, false );
 
-
-		wp_localize_script($this->plugin_name, 'GR_ADMIN', [
-			'ajax' => admin_url('admin-ajax.php'),
-			'nonce' => wp_create_nonce('gr_import_nonce'),
-			'i18n' => [
-				'uploading' => __('Téléversement…', 'genius-reviews'),
-				'importing' => __('Import en cours…', 'genius-reviews'),
-				'done' => __('Import terminé', 'genius-reviews'),
-			],
-		]);
+		wp_localize_script(
+			$this->plugin_name,
+			'GR_ADMIN',
+			array(
+				'ajax'  => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'gr_import_nonce' ),
+				'i18n'  => array(
+					'uploading' => __( 'Téléversement…', 'genius-reviews' ),
+					'importing' => __( 'Import en cours…', 'genius-reviews' ),
+					'done'      => __( 'Import terminé', 'genius-reviews' ),
+				),
+			)
+		);
 	}
 }

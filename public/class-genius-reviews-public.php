@@ -20,8 +20,8 @@
  * @subpackage Genius_Reviews/public
  * @author     Your Name <email@example.com>
  */
-class Genius_Reviews_Public
-{
+class Genius_Reviews_Public {
+
 
 	/**
 	 * The ID of this plugin.
@@ -45,14 +45,13 @@ class Genius_Reviews_Public
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of the plugin.
-	 * @param      string    $version    The version of this plugin.
+	 * @param      string $plugin_name       The name of the plugin.
+	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct($plugin_name, $version)
-	{
+	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 	}
 
 	/**
@@ -60,8 +59,7 @@ class Genius_Reviews_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles()
-	{
+	public function enqueue_styles() {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -75,22 +73,20 @@ class Genius_Reviews_Public
 		 * class.
 		 */
 
-
 		wp_enqueue_style(
 			'gr-splide',
 			'https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css',
-			[],
+			array(),
 			'4.1.4'
 		);
 
 		wp_enqueue_style(
 			$this->plugin_name,
-			plugin_dir_url(__FILE__) . 'build/style-public.css',
-			['gr-splide'],
+			plugin_dir_url( __FILE__ ) . 'build/style-public.css',
+			array( 'gr-splide' ),
 			$this->version,
 			'all'
 		);
-
 	}
 
 	/**
@@ -98,8 +94,7 @@ class Genius_Reviews_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts()
-	{
+	public function enqueue_scripts() {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -116,22 +111,26 @@ class Genius_Reviews_Public
 		wp_enqueue_script(
 			'gr-splide',
 			'https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js',
-			[],
+			array(),
 			'4.1.4',
 			true
 		);
 
 		wp_enqueue_script(
 			$this->plugin_name,
-			plugin_dir_url(__FILE__) . 'build/genius-reviews-public.bundle.js',
-			['jquery', 'gr-splide'],
+			plugin_dir_url( __FILE__ ) . 'build/genius-reviews-public.bundle.js',
+			array( 'jquery', 'gr-splide' ),
 			$this->version,
 			true
 		);
 
-		wp_localize_script($this->plugin_name, 'GR_PUBLIC', [
-			'ajax'  => admin_url('admin-ajax.php'),
-			'nonce' => wp_create_nonce('gr_public_nonce'),
-		]);
+		wp_localize_script(
+			$this->plugin_name,
+			'GR_PUBLIC',
+			array(
+				'ajax'  => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'gr_public_nonce' ),
+			)
+		);
 	}
 }

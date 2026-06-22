@@ -43,9 +43,9 @@ define( 'GR_PATH', plugin_dir_path( __FILE__ ) );
  * The code that runs during plugin activation.
  * This action is documented in includes/class-genius-reviews-activator.php
  */
-function activate_genius_reviews($network_wide) {
-	require_once plugin_dir_path(__FILE__) . 'includes/class-genius-reviews-activator.php';
-	Genius_Reviews_Activator::activate($network_wide);
+function activate_genius_reviews( $network_wide ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-genius-reviews-activator.php';
+	Genius_Reviews_Activator::activate( $network_wide );
 }
 
 /**
@@ -79,7 +79,6 @@ function run_genius_reviews() {
 
 	$plugin = new Genius_Reviews();
 	$plugin->run();
-
 }
 run_genius_reviews();
 
@@ -91,10 +90,10 @@ if ( ! class_exists( 'Puc_v5_Factory' ) ) {
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $updateChecker = PucFactory::buildUpdateChecker(
-	'https://github.com/pikloo/genius-reviews/',
+	'https://github.com/martinfeuillet/genius-reviews/',
 	__FILE__,
 	'genius-reviews'
 );
 
 
-$updateChecker->setBranch('master');
+$updateChecker->setBranch( 'master' );
