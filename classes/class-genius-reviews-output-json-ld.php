@@ -140,7 +140,12 @@ class Genius_Reviews_Output_Json_Ld {
 	}
 
 	/**
-	 * Replace Rank Math Product or ProductGroup entity with Genius Reviews product schema.
+	 * Enrich Rank Math's Product or ProductGroup entity with Genius Reviews data.
+	 *
+	 * The entity is enriched in place (aggregateRating, review, return policy) so
+	 * Rank Math's own properties (brand, description, sku, mpn, seller,
+	 * priceValidUntil, UnitPriceSpecification) are preserved. This avoids both the
+	 * stripped Product and the duplicate Product @id caused by replacing it.
 	 *
 	 * @param array $entity
 	 * @return array
@@ -157,12 +162,7 @@ class Genius_Reviews_Output_Json_Ld {
 			return $entity;
 		}
 
-		$product_schema = self::build_product_schema( $product, false );
-		if ( empty( $product_schema ) ) {
-			return $entity;
-		}
-
-		return $product_schema;
+		return self::merge_review_data_into_product( $entity, $product );
 	}
 
 	/**
@@ -180,11 +180,14 @@ class Genius_Reviews_Output_Json_Ld {
 		if ( is_product() ) {
 			global $product;
 			if ( $product instanceof WC_Product ) {
-				$product_schema = self::build_product_schema( $product, false );
-				if ( ! empty( $product_schema ) ) {
-					$product_replaced = self::replace_product_schema( $data, $product_schema );
+				// Merge into every Product entity Rank Math already output, keeping
+				// its native properties. Only add a standalone Product when Rank
+				// Math output none at all, so we never create a duplicate @id.
+				$enriched = self::enrich_product_entities_in_graph( $data, $product );
 
-					if ( ! $product_replaced ) {
+				if ( ! $enriched ) {
+					$product_schema = self::build_product_schema( $product, false );
+					if ( ! empty( $product_schema ) ) {
 						$data['genius_reviews_product']      = $product_schema;
 						self::$rank_math_product_entity_seen = true;
 					}
@@ -362,6 +365,64 @@ class Genius_Reviews_Output_Json_Ld {
 		}
 
 		return $schema;
+	}
+
+	/**
+	 * Merge Genius Reviews data into an existing Product entity in place.
+	 *
+	 * Adds the merchant return policy (always) plus aggregateRating and review[]
+	 * (when reviews exist), leaving every other property untouched. Idempotent, so
+	 * it is safe to run from both the entity filter and the json_ld graph filter.
+	 *
+	 * @param array      $entity
+	 * @param WC_Product $product
+	 * @return array
+	 */
+	private static function merge_review_data_into_product( array $entity, WC_Product $product ) {
+		$entity = self::add_return_policy_to_offers( $entity );
+
+		$review_data = self::get_product_review_schema_data( $product->get_id() );
+		if ( ! empty( $review_data ) ) {
+			$entity['aggregateRating'] = $review_data['aggregateRating'];
+
+			if ( ! empty( $review_data['review'] ) ) {
+				$entity['review'] = $review_data['review'];
+			}
+		}
+
+		return $entity;
+	}
+
+	/**
+	 * Add the merchant return policy to a Product entity's offer(s).
+	 *
+	 * Handles a single Offer/AggregateOffer object as well as a list of offers.
+	 *
+	 * @param array $entity
+	 * @return array
+	 */
+	private static function add_return_policy_to_offers( array $entity ) {
+		if ( empty( $entity['offers'] ) || ! is_array( $entity['offers'] ) ) {
+			return $entity;
+		}
+
+		$policy = self::build_merchant_return_policy();
+		$offers = $entity['offers'];
+
+		if ( isset( $offers['@type'] ) ) {
+			$offers['hasMerchantReturnPolicy'] = $policy;
+		} else {
+			foreach ( $offers as $index => $offer ) {
+				if ( is_array( $offer ) ) {
+					$offer['hasMerchantReturnPolicy'] = $policy;
+					$offers[ $index ]                 = $offer;
+				}
+			}
+		}
+
+		$entity['offers'] = $offers;
+
+		return $entity;
 	}
 
 	/**
@@ -617,30 +678,34 @@ class Genius_Reviews_Output_Json_Ld {
 	}
 
 	/**
-	 * Replace the first Product/ProductGroup entity found in Rank Math's graph.
+	 * Enrich every Product/ProductGroup entity found in Rank Math's graph in place.
 	 *
-	 * @param array $data
-	 * @param array $product_schema
-	 * @return bool
+	 * @param array      $data
+	 * @param WC_Product $product
+	 * @return bool True when at least one Product entity was found and enriched.
 	 */
-	private static function replace_product_schema( &$data, $product_schema ) {
+	private static function enrich_product_entities_in_graph( &$data, WC_Product $product ) {
+		$found = false;
+
 		foreach ( $data as &$value ) {
 			if ( ! is_array( $value ) ) {
 				continue;
 			}
 
 			if ( self::is_product_entity( $value ) ) {
-				$value                               = $product_schema;
+				$value                               = self::merge_review_data_into_product( $value, $product );
 				self::$rank_math_product_entity_seen = true;
-				return true;
+				$found                               = true;
+				continue;
 			}
 
-			if ( self::replace_product_schema( $value, $product_schema ) ) {
-				return true;
+			if ( self::enrich_product_entities_in_graph( $value, $product ) ) {
+				$found = true;
 			}
 		}
+		unset( $value );
 
-		return false;
+		return $found;
 	}
 
 	/**

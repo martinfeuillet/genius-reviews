@@ -16,7 +16,7 @@
  * Plugin Name:       Genius Reviews
  * Plugin URI:        http://example.com/genius-reviews-uri/
  * Description: Import d’avis via CSV, affichage sur les fiches produits WooCommerce, JSON-LD optimisé SEO.
- * Version:           1.2.4
+ * Version:           1.2.5
  * Author:            Ingenius Agency
  * Author URI:        https://ingenius.agency/
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'GENIUS_REVIEWS_VERSION', '1.2.4' );
+define( 'GENIUS_REVIEWS_VERSION', '1.2.5' );
 define( 'GR_PATH', plugin_dir_path( __FILE__ ) );
 
 
