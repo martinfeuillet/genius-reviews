@@ -462,12 +462,13 @@ class Genius_Reviews_Term_Schema_Cache {
 				'name'  => self::get_formatted_site_name(),
 			),
 			'offers'          => array(
-				'@type'         => 'AggregateOffer',
-				'priceCurrency' => get_woocommerce_currency(),
-				'lowPrice'      => self::format_price( $low_price ),
-				'highPrice'     => self::format_price( $high_price ),
-				'offerCount'    => $offer_count,
-				'availability'  => 'https://schema.org/InStock',
+				'@type'                   => 'AggregateOffer',
+				'priceCurrency'           => get_woocommerce_currency(),
+				'lowPrice'                => self::format_price( $low_price ),
+				'highPrice'               => self::format_price( $high_price ),
+				'offerCount'              => $offer_count,
+				'availability'            => 'https://schema.org/InStock',
+				'hasMerchantReturnPolicy' => self::build_merchant_return_policy(),
 			),
 			'aggregateRating' => array(
 				'@type'       => 'AggregateRating',
@@ -489,6 +490,49 @@ class Genius_Reviews_Term_Schema_Cache {
 			'review_count' => $review_count,
 			'offer_count'  => $offer_count,
 		);
+	}
+
+	/**
+	 * Build the MerchantReturnPolicy schema for the store's base country.
+	 *
+	 * The applicable country mirrors the WooCommerce store base country. For the
+	 * French store, neighbouring markets (BE, LU, CH) are advertised as well.
+	 *
+	 * @return array
+	 */
+	private static function build_merchant_return_policy() {
+		$country = self::get_base_country();
+
+		$applicable_country = ( 'FR' === $country )
+			? array( 'FR', 'BE', 'LU', 'CH' )
+			: $country;
+
+		$policy = array(
+			'@type'                => 'MerchantReturnPolicy',
+			'applicableCountry'    => $applicable_country,
+			'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+			'merchantReturnDays'   => 14,
+			'returnMethod'         => 'https://schema.org/ReturnByMail',
+			'returnFees'           => 'https://schema.org/FreeReturn',
+		);
+
+		return apply_filters( 'genius_reviews_merchant_return_policy', $policy, $country );
+	}
+
+	/**
+	 * Get the WooCommerce store base country code (uppercase ISO 3166-1 alpha-2).
+	 *
+	 * @return string
+	 */
+	private static function get_base_country() {
+		if ( function_exists( 'wc_get_base_location' ) ) {
+			$location = wc_get_base_location();
+			if ( ! empty( $location['country'] ) ) {
+				return strtoupper( $location['country'] );
+			}
+		}
+
+		return 'FR';
 	}
 
 	/**
