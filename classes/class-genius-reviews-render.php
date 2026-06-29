@@ -1473,7 +1473,7 @@ class Genius_Reviews_Render {
 			<?php
 			while ( $query->have_posts() ) {
 				$query->the_post();
-				echo self::review_card( get_the_ID(), $args['mode'] ?: 'grid' );
+				echo self::review_card( get_the_ID(), ( $args['mode'] ?? '' ) ?: 'grid' );
 			}
 			wp_reset_postdata();
 			?>

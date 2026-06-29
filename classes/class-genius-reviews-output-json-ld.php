@@ -26,12 +26,43 @@ class Genius_Reviews_Output_Json_Ld {
 	 */
 	private static $rank_math_organization_entity_seen = false;
 
+	/**
+	 * Whether WooCommerce core output (and we enriched) a Product entity this request.
+	 *
+	 * @var bool
+	 */
+	private static $woocommerce_product_entity_seen = false;
+
 	public function __construct() {
 		add_filter( 'rank_math/snippet/rich_snippet_product_entity', array( $this, 'extend_rank_math_product_entity' ), 20 );
 		add_filter( 'rank_math/json_ld', array( $this, 'extend_rank_math_json_ld' ), 99, 2 );
 
+		add_filter( 'woocommerce_structured_data_product', array( $this, 'extend_woocommerce_structured_data_product' ), 20, 2 );
+
 		add_action( 'wp_head', array( $this, 'output_term_product_jsonld' ), 20 );
 		add_action( 'wp', array( $this, 'register_fallback_jsonld_outputs' ), 20 );
+	}
+
+	/**
+	 * Enrich WooCommerce core's Product structured data with Genius Reviews data.
+	 *
+	 * WooCommerce core emits the Product JSON-LD whenever no SEO plugin takes it
+	 * over (e.g. when Rank Math outputs only the BreadcrumbList). Enriching that
+	 * entity in place adds our review data and return policy without creating a
+	 * second Product sharing the same #product @id.
+	 *
+	 * @param array      $markup
+	 * @param WC_Product $product
+	 * @return array
+	 */
+	public function extend_woocommerce_structured_data_product( $markup, $product ) {
+		self::$woocommerce_product_entity_seen = true;
+
+		if ( ! is_array( $markup ) || ! $product instanceof WC_Product ) {
+			return $markup;
+		}
+
+		return self::merge_review_data_into_product( $markup, $product );
 	}
 
 	/**
@@ -53,6 +84,12 @@ class Genius_Reviews_Output_Json_Ld {
 	 */
 	public function output_product_jsonld() {
 		if ( ! is_product() ) {
+			return;
+		}
+
+		// WooCommerce core already output a Product entity that we enriched; emitting
+		// our own here would duplicate the #product @id.
+		if ( self::$woocommerce_product_entity_seen ) {
 			return;
 		}
 
@@ -180,18 +217,11 @@ class Genius_Reviews_Output_Json_Ld {
 		if ( is_product() ) {
 			global $product;
 			if ( $product instanceof WC_Product ) {
-				// Merge into every Product entity Rank Math already output, keeping
-				// its native properties. Only add a standalone Product when Rank
-				// Math output none at all, so we never create a duplicate @id.
-				$enriched = self::enrich_product_entities_in_graph( $data, $product );
-
-				if ( ! $enriched ) {
-					$product_schema = self::build_product_schema( $product, false );
-					if ( ! empty( $product_schema ) ) {
-						$data['genius_reviews_product']      = $product_schema;
-						self::$rank_math_product_entity_seen = true;
-					}
-				}
+				// Merge into any Product entity Rank Math already output, keeping its
+				// native properties. When Rank Math outputs no Product, WooCommerce
+				// core does, and we enrich that via woocommerce_structured_data_product
+				// instead of adding a second Product that would collide on #product.
+				self::enrich_product_entities_in_graph( $data, $product );
 			}
 		}
 
@@ -396,17 +426,47 @@ class Genius_Reviews_Output_Json_Ld {
 	/**
 	 * Add the merchant return policy to a Product entity's offer(s).
 	 *
-	 * Handles a single Offer/AggregateOffer object as well as a list of offers.
+	 * Covers a single Offer/AggregateOffer object, a list of offers, and variable
+	 * products where Rank Math nests the offers inside each hasVariant[] entry
+	 * (ProductGroup) rather than at the top level.
 	 *
 	 * @param array $entity
 	 * @return array
 	 */
 	private static function add_return_policy_to_offers( array $entity ) {
+		$policy = self::build_merchant_return_policy();
+
+		$entity = self::apply_return_policy_to_offer_field( $entity, $policy );
+
+		if ( ! empty( $entity['hasVariant'] ) && is_array( $entity['hasVariant'] ) ) {
+			if ( isset( $entity['hasVariant']['@type'] ) ) {
+				$entity['hasVariant'] = self::apply_return_policy_to_offer_field( $entity['hasVariant'], $policy );
+			} else {
+				foreach ( $entity['hasVariant'] as $index => $variant ) {
+					if ( is_array( $variant ) ) {
+						$entity['hasVariant'][ $index ] = self::apply_return_policy_to_offer_field( $variant, $policy );
+					}
+				}
+			}
+		}
+
+		return $entity;
+	}
+
+	/**
+	 * Attach the return policy to the offers found directly on an entity.
+	 *
+	 * Handles a single Offer/AggregateOffer object as well as a list of offers.
+	 *
+	 * @param array $entity
+	 * @param array $policy
+	 * @return array
+	 */
+	private static function apply_return_policy_to_offer_field( array $entity, array $policy ) {
 		if ( empty( $entity['offers'] ) || ! is_array( $entity['offers'] ) ) {
 			return $entity;
 		}
 
-		$policy = self::build_merchant_return_policy();
 		$offers = $entity['offers'];
 
 		if ( isset( $offers['@type'] ) ) {
