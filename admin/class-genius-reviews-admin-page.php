@@ -29,11 +29,11 @@ class Genius_Reviews_Admin_Page {
 			update_option( 'gr_option_fallback_reviews_all', ! empty( $_POST['gr_option_fallback_reviews_all'] ) ? 1 : 0 );
 
 			if ( isset( $_POST['gr_color_brand_custom'] ) ) {
-				update_option( 'gr_color_brand_custom', sanitize_hex_color( $_POST['gr_color_brand_custom'] ) ?: '#58AF59' );
+				update_option( 'gr_color_brand_custom', sanitize_hex_color( $_POST['gr_color_brand_custom'] ) ?: '#6EC522' );
 			}
 
 			if ( isset( $_POST['gr_color_star_custom'] ) ) {
-				update_option( 'gr_color_star_custom', sanitize_hex_color( $_POST['gr_color_star_custom'] ) ?: '#58AF59' );
+				update_option( 'gr_color_star_custom', sanitize_hex_color( $_POST['gr_color_star_custom'] ) ?: '#6EC522' );
 			}
 
 			if ( isset( $_POST['gr_color_star_icon_custom'] ) ) {
@@ -44,7 +44,7 @@ class Genius_Reviews_Admin_Page {
 				$field_name = 'gr_color_star_' . $rating_color_level . '_custom';
 				if ( isset( $_POST[ $field_name ] ) ) {
 					$default_colors = array(
-						5 => '#58AF59',
+						5 => '#6EC522',
 						4 => '#92D329',
 						3 => '#FFCE0C',
 						2 => '#FF9232',
@@ -70,11 +70,11 @@ class Genius_Reviews_Admin_Page {
 		$active_badge_on_collection_page = (int) get_option( 'gr_option_active_badge_on_collection_page', 0 );
 		$fallback_reviews_all            = (int) get_option( 'gr_option_fallback_reviews_all', 0 );
 
-		$color_brand_custom           = get_option( 'gr_color_brand_custom', '#58AF59' );
-		$color_star_custom            = get_option( 'gr_color_star_custom', '#58AF59' );
+		$color_brand_custom           = get_option( 'gr_color_brand_custom', '#6EC522' );
+		$color_star_custom            = get_option( 'gr_color_star_custom', '#6EC522' );
 		$color_star_icon_custom       = get_option( 'gr_color_star_icon_custom', '#FFFFFF' );
 		$color_star_levels            = array(
-			5 => get_option( 'gr_color_star_5_custom', '#58AF59' ),
+			5 => get_option( 'gr_color_star_5_custom', '#6EC522' ),
 			4 => get_option( 'gr_color_star_4_custom', '#92D329' ),
 			3 => get_option( 'gr_color_star_3_custom', '#FFCE0C' ),
 			2 => get_option( 'gr_color_star_2_custom', '#FF9232' ),

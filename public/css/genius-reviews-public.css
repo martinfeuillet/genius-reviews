@@ -7,11 +7,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #58AF59;
+  --color-brand: #6EC522;
   --color-brand-hover: #4a9c4a;
 
   /* Palette notes */
-  --color-rating-5: #58AF59;
+  --color-rating-5: #6EC522;
   --color-rating-4: #92D329;
   --color-rating-3: #FFCE0C;
   --color-rating-2: #FF9232;
@@ -40,11 +40,11 @@
 }
 
 .gr-star-filled {
-  color: var(--color-star-custom, #58AF59);
+  color: var(--color-star-custom, #6EC522);
 }
 
 .gr-star-rating-5 {
-  color: var(--color-star-5-custom, #58AF59);
+  color: var(--color-star-5-custom, #6EC522);
 }
 
 .gr-star-rating-4 {

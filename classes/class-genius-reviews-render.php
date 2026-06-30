@@ -9,7 +9,7 @@ class Genius_Reviews_Render {
 
 	private static function default_star_colors() {
 		return array(
-			5 => '#58AF59',
+			5 => '#6EC522',
 			4 => '#92D329',
 			3 => '#FFCE0C',
 			2 => '#FF9232',
@@ -63,12 +63,12 @@ class Genius_Reviews_Render {
 	 * @return void
 	 */
 	public static function inject_brand_color() {
-		$color = get_option( 'gr_color_brand_custom', '#58AF59' );
+		$color = get_option( 'gr_color_brand_custom', '#6EC522' );
 		if ( ! $color ) {
-			$color = '#58AF59';
+			$color = '#6EC522';
 		}
 
-		$star_color        = get_option( 'gr_color_star_custom', '#58AF59' );
+		$star_color        = get_option( 'gr_color_star_custom', '#6EC522' );
 		$star_icon_color   = get_option( 'gr_color_star_icon_custom', '#FFFFFF' );
 		$star_empty_color  = get_option( 'gr_color_star_empty_custom', '#E5E5E5' );
 		$star_level_colors = self::default_star_colors();

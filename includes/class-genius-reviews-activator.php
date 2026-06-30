@@ -86,10 +86,10 @@ class Genius_Reviews_Activator {
 		add_option( 'gr_option_active_badge_on_product_page', 1 );
 		add_option( 'gr_option_active_badge_on_collection_page', 1 );
 		add_option( 'gr_option_fallback_reviews_all', 0 );
-		add_option( 'gr_color_brand_custom', '#58AF59' );
-		add_option( 'gr_color_star_custom', '#58AF59' );
+		add_option( 'gr_color_brand_custom', '#6EC522' );
+		add_option( 'gr_color_star_custom', '#6EC522' );
 		add_option( 'gr_color_star_icon_custom', '#FFFFFF' );
-		add_option( 'gr_color_star_5_custom', '#58AF59' );
+		add_option( 'gr_color_star_5_custom', '#6EC522' );
 		add_option( 'gr_color_star_4_custom', '#92D329' );
 		add_option( 'gr_color_star_3_custom', '#FFCE0C' );
 		add_option( 'gr_color_star_2_custom', '#FF9232' );
